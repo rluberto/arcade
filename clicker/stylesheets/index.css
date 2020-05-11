@@ -31,29 +31,9 @@ button{
     font-size: 16px;
     font-family: 'Press Start 2P', cursive;
     outline: none;
-    display: block;
-    margin: 10px;
 }
 
 button:hover{
-    cursor: pointer;
-    opacity: 0.8;
-}
-
-a{
-    padding: 10px;
-    background-color: blue;
-    color: white;
-    border: none;
-    font-size: 16px;
-    font-family: 'Press Start 2P', cursive;
-    outline: none;
-    text-decoration: none;
-    display: block;
-    margin: 10px;
-}
-
-a:hover{
     cursor: pointer;
     opacity: 0.8;
 }
