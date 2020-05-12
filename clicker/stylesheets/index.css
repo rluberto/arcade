@@ -52,6 +52,10 @@ button:hover{
     transition: 1s ease;
 }
 
+#pongCanvas:hover{
+    cursor: pointer;
+}
+
 #gameOver{
     height: auto;
     max-width: 50%;

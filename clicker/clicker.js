@@ -5,23 +5,21 @@ const game = canvas.getContext("2d");
 const welcome = document.getElementById("welcome");
 const gameOverC = document.getElementById("gameOver");
 
-//Initialize the dynamic coordinates for the game elements
-let paddleX = 250;
-let ballX = 300;
-let ballY = 200;
-let ballXChange = 0;
-let ballYChange = 1;
-let iteration = 0;
+var backgroundMusic = true;
+var audioElement0 = document.createElement('audio');
+var refre = 0;
+var refreThresh = 600;
+var updates = 0;
 
 //Initialize the game
 function init(){
+    musicBox();
+    document.getElementById("musicTogg").style.display = "inline-block";
     canvas.style.display = "block"; //Get rid of the welcome screen and get the game canvas ready to fade in
     canvas.style.opacity = 0;
     welcome.style.opacity = 0;
     gameOverC.style.opacity = 0;
     setTimeout(function(){
-        createRect(paddleX, 380, 100, 20, "black"); //Create the paddle in the initial position
-        createCircle(ballX, ballY, 10, "blue"); //Create the ball in the initial position
         canvas.style.opacity = 1; //Fade in the game screen and fully remove the inviisble welcome screen
         welcome.style.display = "none";
         gameOverC.style.display = "none";
@@ -34,47 +32,86 @@ function init(){
 //Refresh the canvas
 function refreshCanvas(){
     clearCanvas();
-    updateBall();
-    createRect(paddleX, 380, 100, 20, "black");
-    createText("Speed: " + Math.abs(ballYChange), 10, 30, "black");
-    createText("Score: " + iteration, 10, 60, "black");
+    if(fallObjects.length == 0){ //Initially generate blocks
+        generateFallBlocks();
+    }
+    if(refre % refreThresh == 0){ //If refe divided by refreThresh is evenly divible, add more blocks
+        generateFallBlocks();
+        refre = 0;
+        if(refreThresh > 100){
+            refreThresh -= 20;
+        }
+        updates++;
+    }
+    generateFall();
+    refre++;
+    console.log(refre);
 }
 
-//Updates the position of the ball automatically
-function updateBall(){
-    if(ballY >= 370 && ballY < 371 && ballX >= paddleX && ballX <= paddleX+100){ //If the ball hits the paddle change directions
-        ballYChange = 0 - ballYChange;
-        ballXChange = Math.floor(Math.random() * 4) - (Math.random() + 1 * 2);
-        while(ballXChange == 1){
-            ballXChange = Math.floor(Math.random() * 4) - (Math.random() + 1 * 2);
-        }
-        iterationCheck();
-    }
-    if(ballY < 10){ //If the ball hits the top change directions
-        ballYChange = 0 - ballYChange;
-    }
-    if(ballX > 590 || ballX < 10){ //If the ball hits the sides of the canvas
-        ballXChange = 0 - ballXChange;
-    }
-    if(ballY > 410){ //If the ball hits the bottom of the canvas end the game
-        gameOver();
-    }
-    ballX += ballXChange; //Update the ball position by adding the assigned speed
-    ballY += ballYChange;
-    createCircle(ballX, ballY, 10, "blue");
+//Play the games background audio
+function musicBox(){
+    var numFiles = 8;
+    audioElement0.setAttribute('src', "music/" + Math.floor(Math.random() * numFiles + 1) + ".mp3");
+    audioElement0.setAttribute('autoplay', 'autoplay');
+    audioElement0.addEventListener('ended', function() {
+        audioElement0.currentTime = 0;
+        audioElement0.setAttribute('src', "music/" + Math.floor(Math.random() * numFiles + 1) + ".mp3");
+        audioElement0.play();
+    }, false);
 }
 
-//Handles the scoring aspect of the game
-function iterationCheck(){
-    iteration++; //Add 1 to the score
-    if(iteration % 2 == 0){ //If the score is evenly divided by 2, increase the speed by .5
-        if(ballYChange > 0){
-            ballYChange = ballYChange + .5;
-        }
-        else{
-            ballYChange = ballYChange - .5;
-        }
+//Toggles the background music on and off
+function toggleMusic(){
+    if(backgroundMusic){
+        backgroundMusic = false;
+        audioElement0.pause();
+        document.getElementById("musicTogg").style.background = "grey";
     }
+    else{
+        backgroundMusic = true;
+        audioElement0.play();
+        document.getElementById("musicTogg").style.background = "";
+    }
+}
+
+//Create an array to store all of the falling blocks
+var fallObjects = [];
+
+//Create an object for all of the falling blocks
+var fallBlock = function(x, y, size, speed) {
+    this.x = x;
+    this.y = y;
+    this.size = size;
+    this.speed = speed;
+    this.updatePosition = function () {
+        y += speed;
+        createRect(x, y, size, size, "black");
+    };
+}
+
+//Update the position of each falling block object in the array
+function generateFall(){
+    for(i=0; i<fallObjects.length; i++){
+        fallObjects[i].updatePosition();
+    }
+}
+
+function generateFallBlocks(){
+    for(x=0; x<updates; x++){
+        var xPos = Math.floor(Math.random() * 580);
+        var yPosMult = 0 - Math.floor(Math.random() * 10 * updates);
+        fallObjects[fallObjects.length] = new fallBlock(xPos, yPosMult, 20, 0.3);
+        fallObjects[fallObjects.length - 1].updatePosition();
+        console.log(fallObjects);
+    }
+}
+
+//If the mouse is clicked
+function mouseClick(event){
+    var x = event.pageX - canvas.offsetLeft;
+    var y = event.pageY - (canvas.offsetTop - 200);
+  var coords = "X coords: " + x  + ", Y coords: " + y + " ";
+  alert(coords);
 }
 
 //Creates a rectangle
@@ -104,20 +141,9 @@ function clearCanvas(){
     createRect(0, 0, 600, 400, "white");
 }
 
-document.onkeydown = function(event){
-    if(event.keyCode == 37 && paddleX > 0){ //If the left key is pressed and not out of bounde
-        paddleX-=10;
-    }
-    if(event.keyCode == 39 && paddleX < 500){ //If the right key is pressed and not out of bounds
-        paddleX+=10;
-    }
-}
-
 //End the game
 function gameOver(){
     gameLoop = clearInterval();
-    ballXChange = 0;
-    ballYChange = 0;
     canvas.style.opacity = 0;
     gameOverC.style.opacity = 0;
     gameOverC.style.display = "block";

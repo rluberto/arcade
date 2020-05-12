@@ -22,14 +22,15 @@
     </div>
     <div id="gameOver">
         <div id="gameOverContent">
-            <h1>Pong</h1>
+            <h1>Falling Objects</h1>
             <h3 color="red">Game Over</h3>
             <p id="gameScore"></p>
             <button onclick="window.location.href=''">Start Over</button>
         </div>
     </div>
-    <canvas id="pongCanvas" width="600" height="400"></canvas>
+    <canvas id="pongCanvas" width="600" height="400" onclick="mouseClick(event)"></canvas>
     <script src="clicker.js"></script>
+    <button id="musicTogg" onclick="toggleMusic()" style="position: absolute; display: none; bottom: 10px; left: 10px;">Music</button>
     
 </body>
 </html>
