@@ -76,8 +76,8 @@ function musicBox(track){
 }
 
 //Play the games background audio
-function sfxBox(){
-    audioElement1.setAttribute('src', "music/point.mp3");
+function sfxBox(track){
+    audioElement1.setAttribute('src', track);
     audioElement1.play();
 }
 
@@ -99,27 +99,40 @@ function toggleMusic(){
 var fallObjects = [];
 
 //Create an object for all of the falling blocks
-var fallBlock = function(x, y, size, speed) {
+var fallBlock = function(x, y, size, speed, enemy) {
     this.x = x;
     this.y = y;
     this.size = size;
     this.speed = speed;
     this.visible = 1;
+    this.enemy = enemy;
     this.updatePosition = function () {
         y += speed;
         if(this.visible == 1){
-            createRect(x, y, size, size, "black");
+            if(this.enemy == 0){
+                createRect(x, y, size, size, "black");
+            }
+            else{
+                createRect(x, y, size, size, "red");
+            }
         }
     };
     this.checkClickDelete = function(mX, mY){
         if(mX >= x && mX <= x+size && mY >= y && mY <= y+size){
-            this.visible = 0;
-            score++;
-            sfxBox();
+            if(this.enemy == 0){
+                this.visible = 0;
+                score++;
+                sfxBox('music/point.mp3');
+            }
+            else{
+                this.visible = 0;
+                sfxBox('music/buzz.mp3');
+                score -= 10;
+            }
         }
     }
     this.checkGameOver = function(){
-        if(this.visible ==  1 && y > 400){
+        if(this.visible ==  1 && y > 400 && this.enemy == 0){
             gameOver();
         }
     }
@@ -143,7 +156,11 @@ function generateFallBlocks(){
     for(x=0; x<amountToAdd; x++){
         var xPos = Math.floor(Math.random() * 580);
         var yPosMult = 0 - Math.floor(Math.random() * 10 * updates);
-        fallObjects[fallObjects.length] = new fallBlock(xPos, yPosMult, 20, 0.4);
+        var isEnemy = 0;
+        if(x > 3 && x == amountToAdd - 1){
+            isEnemy = 1;
+        }
+        fallObjects[fallObjects.length] = new fallBlock(xPos, yPosMult, 20, 0.4, isEnemy);
         fallObjects[fallObjects.length - 1].updatePosition();
     }
 }
