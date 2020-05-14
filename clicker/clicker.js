@@ -7,9 +7,13 @@ const gameOverC = document.getElementById("gameOver");
 
 var backgroundMusic = true;
 var audioElement0 = document.createElement('audio');
+var audioElement1 = document.createElement('audio');
+
 var refre = 0;
-var refreThresh = 600;
+var refreThresh = 100;
 var updates = 0;
+var score = 0;
+var gameIsOver = 0;
 
 //Initialize the game
 function init(){
@@ -31,33 +35,50 @@ function init(){
 
 //Refresh the canvas
 function refreshCanvas(){
-    clearCanvas();
-    if(fallObjects.length == 0){ //Initially generate blocks
-        generateFallBlocks();
-    }
-    if(refre % refreThresh == 0){ //If refe divided by refreThresh is evenly divible, add more blocks
-        generateFallBlocks();
-        refre = 0;
-        if(refreThresh > 100){
-            refreThresh -= 20;
+    if(gameIsOver == 0){
+        clearCanvas();
+        if(fallObjects.length == 0){ //Initially generate blocks
+            generateFallBlocks();
         }
-        updates++;
+        if(refre % refreThresh == 0){ //If refe divided by refreThresh is evenly divible, add more blocks
+            generateFallBlocks();
+            refre = 0;
+            if(updates > 10){
+                refreThresh = 200;
+            }
+            updates++;
+        }
+        generateFall();
+        refre++;
+        for(i=0; i<fallObjects.length; i++){
+            fallObjects[i].checkGameOver();
+        }
+        createText("Score: " + score, 10, 30, "blue");
     }
-    generateFall();
-    refre++;
-    console.log(refre);
 }
 
 //Play the games background audio
-function musicBox(){
+function musicBox(track){
     var numFiles = 8;
     audioElement0.setAttribute('src', "music/" + Math.floor(Math.random() * numFiles + 1) + ".mp3");
+    if(track){
+        audioElement0.setAttribute('src', track);
+    }
     audioElement0.setAttribute('autoplay', 'autoplay');
     audioElement0.addEventListener('ended', function() {
         audioElement0.currentTime = 0;
         audioElement0.setAttribute('src', "music/" + Math.floor(Math.random() * numFiles + 1) + ".mp3");
+        if(track){
+            audioElement0.setAttribute('src', track);
+        }
         audioElement0.play();
     }, false);
+}
+
+//Play the games background audio
+function sfxBox(){
+    audioElement1.setAttribute('src', "music/point.mp3");
+    audioElement1.play();
 }
 
 //Toggles the background music on and off
@@ -83,10 +104,25 @@ var fallBlock = function(x, y, size, speed) {
     this.y = y;
     this.size = size;
     this.speed = speed;
+    this.visible = 1;
     this.updatePosition = function () {
         y += speed;
-        createRect(x, y, size, size, "black");
+        if(this.visible == 1){
+            createRect(x, y, size, size, "black");
+        }
     };
+    this.checkClickDelete = function(mX, mY){
+        if(mX >= x && mX <= x+size && mY >= y && mY <= y+size){
+            this.visible = 0;
+            score++;
+            sfxBox();
+        }
+    }
+    this.checkGameOver = function(){
+        if(this.visible ==  1 && y > 400){
+            gameOver();
+        }
+    }
 }
 
 //Update the position of each falling block object in the array
@@ -97,21 +133,32 @@ function generateFall(){
 }
 
 function generateFallBlocks(){
-    for(x=0; x<updates; x++){
+    var amountToAdd = 0;
+    if(updates <= 6){
+        amountToAdd = updates;
+    }
+    else{
+        amountToAdd = updates/2;
+    }
+    for(x=0; x<amountToAdd; x++){
         var xPos = Math.floor(Math.random() * 580);
         var yPosMult = 0 - Math.floor(Math.random() * 10 * updates);
-        fallObjects[fallObjects.length] = new fallBlock(xPos, yPosMult, 20, 0.3);
+        fallObjects[fallObjects.length] = new fallBlock(xPos, yPosMult, 20, 0.4);
         fallObjects[fallObjects.length - 1].updatePosition();
-        console.log(fallObjects);
+    }
+}
+
+function deleteFallBlock(x, y, i){
+    for(i=0; i<fallObjects.length; i++){
+        fallObjects[i].checkClickDelete(x, y);
     }
 }
 
 //If the mouse is clicked
 function mouseClick(event){
-    var x = event.pageX - canvas.offsetLeft;
-    var y = event.pageY - (canvas.offsetTop - 200);
-  var coords = "X coords: " + x  + ", Y coords: " + y + " ";
-  alert(coords);
+    var x = event.pageX - (canvas.offsetLeft + 3);
+    var y = (event.pageY - (canvas.offsetTop - 203)) - 3;
+    deleteFallBlock(x, y);
 }
 
 //Creates a rectangle
@@ -144,12 +191,14 @@ function clearCanvas(){
 //End the game
 function gameOver(){
     gameLoop = clearInterval();
+    gameIsOver = 1;
     canvas.style.opacity = 0;
     gameOverC.style.opacity = 0;
     gameOverC.style.display = "block";
+    musicBox('music/gameOver.mp3');
     setTimeout(function(){
         gameOverC.style.opacity = 1;
         canvas.style.display = "none";
-        document.getElementById("gameScore").innerHTML = "Score: " + iteration;
+        document.getElementById("gameScore").innerHTML = "Score: " + score;
     }, 1000);
 }
