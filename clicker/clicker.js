@@ -17,7 +17,7 @@ var gameIsOver = 0;
 
 //Initialize the game
 function init(){
-    musicBox();
+    //musicBox();
     document.getElementById("musicTogg").style.display = "inline-block";
     canvas.style.display = "block"; //Get rid of the welcome screen and get the game canvas ready to fade in
     canvas.style.opacity = 0;
@@ -71,7 +71,7 @@ function musicBox(track){
         if(track){
             audioElement0.setAttribute('src', track);
         }
-        //audioElement0.play();
+        audioElement0.play();
     }, false);
 }
 
