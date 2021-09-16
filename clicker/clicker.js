@@ -71,14 +71,14 @@ function musicBox(track){
         if(track){
             audioElement0.setAttribute('src', track);
         }
-        audioElement0.play();
+        //audioElement0.play();
     }, false);
 }
 
 //Play the games background audio
 function sfxBox(track){
     audioElement1.setAttribute('src', track);
-    //audioElement1.play();
+    audioElement1.play();
 }
 
 //Toggles the background music on and off
