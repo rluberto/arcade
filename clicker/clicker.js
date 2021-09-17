@@ -18,8 +18,8 @@ var gameIsOver = 0;
 //Initialize the game
 function init(){
     musicBox();
-    audioElement0.volume = 0.04;
-    audioElement1.volume = 0.01;
+    audioElement0.volume = 0;
+    audioElement1.volume = 0;
     document.getElementById("musicTogg").style.display = "inline-block";
     canvas.style.display = "block"; //Get rid of the welcome screen and get the game canvas ready to fade in
     canvas.style.opacity = 0;
