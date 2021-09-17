@@ -17,7 +17,7 @@ var gameIsOver = 0;
 
 //Initialize the game
 function init(){
-    musicBox();
+    //musicBox();
     audioElement0.volume = 0;
     audioElement1.volume = 0;
     document.getElementById("musicTogg").style.display = "inline-block";
