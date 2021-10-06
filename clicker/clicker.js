@@ -80,7 +80,7 @@ function musicBox(track){
 //Play the games background audio
 function sfxBox(track){
     audioElement1.setAttribute('src', track);
-    //audioElement1.play();
+    audioElement1.play();
 }
 
 //Toggles the background music on and off
